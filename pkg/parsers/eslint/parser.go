@@ -84,4 +84,42 @@ func (p *Parser) Parse(reader io.Reader) ([]plugin.AnalysisResult, error) {
 // SupportedFileExtensions returns the file extensions this parser can handle
 func (p *Parser) SupportedFileExtensions() []string {
 	return []string{".js", ".jsx", ".ts", ".tsx", ".vue"}
+}
+
+// GetRuleSummary returns a custom summary for a specific rule, or nil if no custom summary is needed
+func (p *Parser) GetRuleSummary(ruleID string, results []plugin.AnalysisResult) *plugin.RuleSummary {
+	if ruleID != "max-lines" {
+		return nil
+	}
+
+	if len(results) == 0 {
+		return nil
+	}
+
+	// For max-lines, we want to show the difference between current and max lines
+	// The message format is typically: "File has too many lines (X). Maximum allowed is Y."
+	// We'll extract these numbers and use the difference as the count
+	message := results[0].Message
+	var currentLines, maxLines int
+	fmt.Sscanf(message, "File has too many lines (%d). Maximum allowed is %d.", &currentLines, &maxLines)
+
+	// Create a custom summary
+	summary := &plugin.RuleSummary{
+		RuleID:      ruleID,
+		Description: results[0].Description,
+		Severity:    results[0].Severity,
+		Count:       currentLines - maxLines, // Use the difference as the count
+		Violations:  make([]plugin.Violation, 0, len(results)),
+	}
+
+	// Add violations
+	for _, result := range results {
+		summary.Violations = append(summary.Violations, plugin.Violation{
+			Line:    result.Line,
+			Column:  result.Column,
+			Message: result.Message,
+		})
+	}
+
+	return summary
 } 

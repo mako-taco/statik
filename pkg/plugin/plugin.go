@@ -36,4 +36,7 @@ type Parser interface {
 
 	// SupportedFileExtensions returns a list of file extensions this parser can handle
 	SupportedFileExtensions() []string
+
+	// GetRuleSummary returns a custom summary for a specific rule, or nil if no custom summary is needed
+	GetRuleSummary(ruleID string, results []AnalysisResult) *RuleSummary
 } 

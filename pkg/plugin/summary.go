@@ -1,5 +1,12 @@
 package plugin
 
+import (
+	"fmt"
+)
+
+// registry is the global registry of parsers
+var registry = NewRegistry()
+
 // ToolSummary represents the top-level summary of analysis results
 type ToolSummary struct {
 	Tool          string         `json:"tool"`
@@ -201,28 +208,59 @@ func NewToolSummary(results []AnalysisResult) *ToolSummary {
 				continue
 			}
 
-			ruleSummary := RuleSummary{
-				RuleID:      ruleID,
-				Description: ruleResults[0].Description,
-				Severity:    ruleResults[0].Severity,
-				Count:       len(ruleResults),
-				Violations:  make([]Violation, 0, len(ruleResults)),
+			// Get the parser for this tool
+			parser, err := GetParserForTool(results[0].Tool)
+			if err != nil {
+				// If we can't get the parser, use the default summary
+				ruleSummary := createDefaultRuleSummary(ruleID, ruleResults)
+				fileSummary.RuleSummaries = append(fileSummary.RuleSummaries, ruleSummary)
+				continue
 			}
 
-			// Add violations
-			for _, result := range ruleResults {
-				ruleSummary.Violations = append(ruleSummary.Violations, Violation{
-					Line:    result.Line,
-					Column:  result.Column,
-					Message: result.Message,
-				})
+			// Try to get a custom summary for this rule
+			if customSummary := parser.GetRuleSummary(ruleID, ruleResults); customSummary != nil {
+				fileSummary.RuleSummaries = append(fileSummary.RuleSummaries, *customSummary)
+			} else {
+				// Use default summary if no custom summary is available
+				ruleSummary := createDefaultRuleSummary(ruleID, ruleResults)
+				fileSummary.RuleSummaries = append(fileSummary.RuleSummaries, ruleSummary)
 			}
-
-			fileSummary.RuleSummaries = append(fileSummary.RuleSummaries, ruleSummary)
 		}
 
 		summary.FileSummaries = append(summary.FileSummaries, fileSummary)
 	}
 
 	return summary
+}
+
+// createDefaultRuleSummary creates a default rule summary from the given results
+func createDefaultRuleSummary(ruleID string, results []AnalysisResult) RuleSummary {
+	ruleSummary := RuleSummary{
+		RuleID:      ruleID,
+		Description: results[0].Description,
+		Severity:    results[0].Severity,
+		Count:       len(results),
+		Violations:  make([]Violation, 0, len(results)),
+	}
+
+	// Add violations
+	for _, result := range results {
+		ruleSummary.Violations = append(ruleSummary.Violations, Violation{
+			Line:    result.Line,
+			Column:  result.Column,
+			Message: result.Message,
+		})
+	}
+
+	return ruleSummary
+}
+
+// GetParserForTool returns the parser for a given tool name
+func GetParserForTool(toolName string) (Parser, error) {
+	// Use the global registry to get the parser
+	parser, err := registry.GetParser(toolName)
+	if err != nil {
+		return nil, fmt.Errorf("no parser found for tool %s", toolName)
+	}
+	return parser, nil
 } 

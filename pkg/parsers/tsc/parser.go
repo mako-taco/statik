@@ -71,4 +71,10 @@ func (p *Parser) Parse(reader io.Reader) ([]plugin.AnalysisResult, error) {
 // SupportedFileExtensions returns the file extensions this parser can handle
 func (p *Parser) SupportedFileExtensions() []string {
 	return []string{".ts", ".tsx"}
+}
+
+// GetRuleSummary returns a custom summary for a specific rule, or nil if no custom summary is needed
+func (p *Parser) GetRuleSummary(ruleID string, results []plugin.AnalysisResult) *plugin.RuleSummary {
+	// TSC doesn't have any custom summaries yet
+	return nil
 } 
