@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/statik/pkg/parsers/checkstyle"
 	"github.com/statik/pkg/parsers/eslint"
 	"github.com/statik/pkg/parsers/tsc"
 	"github.com/statik/pkg/plugin"
@@ -163,6 +164,7 @@ func init() {
 	// Register available parsers
 	registry.Register(&tsc.Parser{})
 	registry.Register(&eslint.Parser{})
+	registry.Register(&checkstyle.Parser{})
 
 	// Add commands
 	rootCmd.AddCommand(parseCmd)

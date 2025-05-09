@@ -44,6 +44,7 @@ Statik provides a third way: gradually improve code quality while ensuring no re
 | ------------------------- | ----------------------------------------------- | ------------------------------------ |
 | TypeScript Compiler (tsc) | TypeScript's built-in type checker and compiler | `.ts`, `.tsx`                        |
 | ESLint                    | JavaScript/TypeScript linter                    | `.js`, `.jsx`, `.ts`, `.tsx`, `.vue` |
+| Checkstyle                | Java code style and quality checks              | `.java`, `.xml`, `.properties`       |
 
 _More tools coming soon! [Request a tool](https://github.com/statik/issues) or [contribute](CONTRIBUTING.md) your own parser._
 
