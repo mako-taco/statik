@@ -1,0 +1,4 @@
+theme: jekyll-theme-minimal
+title: Statik
+description: A powerful CLI tool that unifies and compares outputs from various static analysis tools
+show_downloads: true
