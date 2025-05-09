@@ -40,10 +40,10 @@ Statik provides a third way: gradually improve code quality while ensuring no re
 
 ## 🔧 Supported Tools
 
-| Tool                      | Description                                     | File Extensions                      | Custom Rule Support          |
-| ------------------------- | ----------------------------------------------- | ------------------------------------ | ---------------------------- |
-| TypeScript Compiler (tsc) | TypeScript's built-in type checker and compiler | `.ts`, `.tsx`                        | No custom rules yet          |
-| ESLint                    | JavaScript/TypeScript linter                    | `.js`, `.jsx`, `.ts`, `.tsx`, `.vue` | Yes (e.g., `max-lines` rule) |
+| Tool                      | Description                                     | File Extensions                      |
+| ------------------------- | ----------------------------------------------- | ------------------------------------ |
+| TypeScript Compiler (tsc) | TypeScript's built-in type checker and compiler | `.ts`, `.tsx`                        |
+| ESLint                    | JavaScript/TypeScript linter                    | `.js`, `.jsx`, `.ts`, `.tsx`, `.vue` |
 
 _More tools coming soon! [Request a tool](https://github.com/statik/issues) or [contribute](CONTRIBUTING.md) your own parser._
 
