@@ -1,26 +1,51 @@
 ---
 layout: default
 title: Statik - Static Analysis Tool Output Parser
-description: A powerful CLI tool that unifies and compares outputs from various static analysis tools
+description: A powerful CLI tool that helps teams gradually introduce new static analysis rules without blocking development
 ---
 
 # Statik
 
 <div class="hero">
-  <h1>Unify Your Static Analysis Workflow</h1>
-  <p class="lead">Statik is a powerful CLI tool that parses and compares outputs from various static analysis tools, providing a unified interface for better code quality management.</p>
+  <h1>Introduce New Static Analysis Rules Safely</h1>
+  <p class="lead">Statik helps teams gradually adopt new static analysis rules by tracking progress over time, without requiring immediate compliance across the entire codebase.</p>
 </div>
 
-## 🚀 Features
+## 🎯 The Problem
 
-- **Unified Output Format**: Convert outputs from different static analysis tools into a consistent JSON format
-- **Smart Comparisons**: Compare analysis results before and after changes to track improvements or regressions
+When introducing new static analysis rules to a large codebase, teams often face a difficult choice:
+
+- **Option 1**: Fix all violations immediately (blocks development, high risk)
+- **Option 2**: Disable the rule (misses potential issues)
+- **Option 3**: Use Statik (track progress, ensure improvement)
+
+## 💡 The Solution
+
+Statik provides a third way: gradually improve code quality while ensuring no regressions. It helps you:
+
+- Track the number of violations over time
+- Ensure new code doesn't introduce more violations
+- Set and monitor progress towards zero violations
+- Compare before/after changes to catch regressions
+
+## 🚀 Key Features
+
+- **Progress Tracking**: Monitor the number of violations over time
+- **Regression Prevention**: Fail CI if new violations are introduced
+- **Smart Comparisons**: Compare analysis results before and after changes
 - **Custom Rule Summaries**: Intelligent handling of specific rules (e.g., ESLint's max-lines rule)
 - **Multiple Tool Support**: Currently supports:
   - TypeScript Compiler (tsc)
   - ESLint
-- **Flexible Input**: Read from files or directly from stdin
-- **Configurable Severity**: Option to ignore warnings when comparing results
+
+## 🔧 Supported Tools
+
+| Tool                      | Description                                     | File Extensions                      | Custom Rule Support          |
+| ------------------------- | ----------------------------------------------- | ------------------------------------ | ---------------------------- |
+| TypeScript Compiler (tsc) | TypeScript's built-in type checker and compiler | `.ts`, `.tsx`                        | No custom rules yet          |
+| ESLint                    | JavaScript/TypeScript linter                    | `.js`, `.jsx`, `.ts`, `.tsx`, `.vue` | Yes (e.g., `max-lines` rule) |
+
+_More tools coming soon! [Request a tool](https://github.com/statik/issues) or [contribute](CONTRIBUTING.md) your own parser._
 
 ## 📦 Installation
 
@@ -30,34 +55,31 @@ go install github.com/statik@latest
 
 ## 🛠️ Usage
 
-### Parse Command
-
-Convert static analysis tool output into a unified JSON format:
+### 1. Initial Setup
 
 ```bash
-# Parse TypeScript compiler output from a file
-statik parse tsc tsc-output.txt > summary.json
-
-# Parse TypeScript compiler output directly from stdin
-tsc --noEmit | statik parse tsc > summary.json
-
-# Parse ESLint output from a file
-statik parse eslint eslint-output.json > summary.json
-
-# Parse ESLint output directly from stdin
-eslint --format json . | statik parse eslint > summary.json
+# Generate initial baseline
+eslint --format json . | statik parse eslint > baseline.json
 ```
 
-### Compare Command
-
-Track changes in your code quality over time:
+### 2. Track Progress
 
 ```bash
-# Compare two summaries
-statik compare before.json after.json
+# Generate current state
+eslint --format json . | statik parse eslint > current.json
 
-# Compare summaries and ignore warnings
-statik compare before.json after.json --ignore-warnings
+# Compare with baseline
+statik compare baseline.json current.json
+```
+
+### 3. CI Integration
+
+```bash
+# Fail if new violations are introduced
+statik compare baseline.json current.json
+
+# Or only fail on error-level regressions
+statik compare baseline.json current.json --ignore-warnings
 ```
 
 ### Example Output
@@ -76,8 +98,6 @@ statik compare before.json after.json --ignore-warnings
         }
       ],
       "worsened_rules": [],
-      "new_rules": [],
-      "removed_rules": [],
       "total_before": 2,
       "total_after": 0,
       "net_change": -2
@@ -86,7 +106,6 @@ statik compare before.json after.json --ignore-warnings
   "worsened_files": [
     {
       "file": "src/file2.ts",
-      "improved_rules": [],
       "worsened_rules": [
         {
           "rule_id": "TS2322",
@@ -95,15 +114,11 @@ statik compare before.json after.json --ignore-warnings
           "change": 1
         }
       ],
-      "new_rules": [],
-      "removed_rules": [],
       "total_before": 0,
       "total_after": 1,
       "net_change": 1
     }
-  ],
-  "new_files": ["src/file3.ts"],
-  "removed_files": ["src/file4.ts"]
+  ]
 }
 ```
 
@@ -111,16 +126,16 @@ statik compare before.json after.json --ignore-warnings
 
 Statik provides intelligent handling of specific rules. For example, with ESLint's `max-lines` rule:
 
-- Instead of just counting violations, it shows the actual difference between current and maximum allowed lines
-- Makes it easier to track how far you are from the limit
+- Shows the actual difference between current and maximum allowed lines
+- Makes it easier to track progress towards the limit
 - Helps prioritize which files need the most attention
 
 ## 🎯 Use Cases
 
-- **CI/CD Integration**: Track code quality metrics in your pipeline
-- **Pre-commit Hooks**: Prevent regressions before they're committed
+- **Gradual Rule Adoption**: Introduce new rules without blocking development
+- **CI/CD Integration**: Ensure no new violations are introduced
+- **Team Metrics**: Track progress towards zero violations
 - **Code Review**: Quickly identify problematic changes
-- **Team Metrics**: Track code quality improvements over time
 - **Project Health**: Get a unified view of your codebase's static analysis status
 
 ## 🤝 Contributing
@@ -147,7 +162,7 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 ---
 
 <div class="cta">
-  <h2>Ready to improve your static analysis workflow?</h2>
+  <h2>Ready to improve your code quality gradually?</h2>
   <p>Get started with Statik today!</p>
   <a href="https://github.com/statik" class="button">View on GitHub</a>
 </div>
